@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+from model import load_model
+from handler import get_response
 
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="FairCare Pulse", layout="wide")
@@ -23,7 +25,7 @@ with col2:
 with col3:
     st.button("💬 Kirim Masukan / Sanggahan")
 with col4:
-    st.button("🤖 Chatbot Bantuan")
+    chat_toggle = st.button("🤖 Chatbot Bantuan")
 
 # ---------- FAIRNESS INDEX ----------
 st.markdown("""
@@ -49,7 +51,6 @@ data = pd.DataFrame({
     "Status": ["Terverifikasi", "Dalam Review", "Catatan Ditambahkan"]
 })
 
-# styling custom
 def status_color(status):
     color_map = {
         "Terverifikasi": "#D4EDDA",
@@ -63,3 +64,29 @@ st.dataframe(
 )
 
 st.markdown("<center><a href='#' style='color:#0A8F5B;'>Lihat Semua Riwayat</a></center>", unsafe_allow_html=True)
+
+# ---------- CHATBOT SECTION ----------
+if chat_toggle:
+    st.markdown("### 🤖 Chatbot FairCare Assistant")
+
+    @st.cache_resource
+    def init_model():
+        return load_model()
+
+    tokenizer, model = init_model()
+
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+    for msg in st.session_state.messages:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+
+    if prompt := st.chat_input("Tanyakan sesuatu tentang layanan JKN..."):
+        st.chat_message("user").markdown(prompt)
+        st.session_state.messages.append({"role": "user", "content": prompt})
+
+        response = get_response(prompt, tokenizer, model)
+        with st.chat_message("assistant"):
+            st.markdown(response)
+        st.session_state.messages.append({"role": "assistant", "content": response})
