@@ -21,7 +21,7 @@ col1, col2, col3, col4 = st.columns(4)
 with col1:
     st.button("🗂️ Lihat Riwayat Layanan")
 with col2:
-    st.button("📊 Bandingkan Tarif & Tindakan")
+    compare_clicked = st.button("📊 Bandingkan Tarif & Tindakan")
 with col3:
     st.button("💬 Kirim Masukan / Sanggahan")
 with col4:
