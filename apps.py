@@ -90,3 +90,70 @@ if chat_toggle:
         with st.chat_message("assistant"):
             st.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
+
+# ---------- FITUR PERBANDINGAN TARIF ----------
+if compare_clicked:
+    st.markdown("### 📊 Bandingkan Tarif & Tindakan")
+    
+    with st.form("claim_analysis_form"):
+        diagnosis = st.selectbox(
+            "Diagnosis Utama",
+            ["ISPA", "Diare", "Hipertensi", "Diabetes", "Fraktur Tulang", "Lainnya"],
+            help="Pilih diagnosis sesuai klaim"
+        )
+        if diagnosis == "Lainnya":
+            diagnosis = st.text_input("Masukkan diagnosis lain")
+        
+        claimed_amount = st.number_input(
+            "Nilai Klaim (Rp)", 
+            min_value=0, 
+            value=1000000, 
+            step=100000,
+            format="%d"
+        )
+        days = st.number_input("Lama Rawat Inap (hari)", min_value=0, max_value=30, value=1)
+        facility = st.text_input("Nama Fasilitas", value="RS Umum Daerah")
+        
+        submitted = st.form_submit_button("Analisis Klaim")
+    
+    if submitted and diagnosis:
+        from fairness_engine import analyze_claim, generate_appeal_suggestion
+        
+        result = analyze_claim(diagnosis, claimed_amount, facility, days)
+        
+        # Tampilkan hasil
+        st.markdown("#### 📌 Hasil Analisis")
+        col_a, col_b, col_c = st.columns(3)
+        with col_a:
+            st.metric("Klaim RS", f"Rp{result['claimed_amount']:,}".replace(",", "."))
+        with col_b:
+            st.metric("Tarif BPJS", f"Rp{result['tarif_bpjs']:,}".replace(",", "."))
+        with col_c:
+            if result["is_suspicious"]:
+                st.warning("⚠️ Perlu Tinjauan")
+            else:
+                st.success("✅ Wajar")
+        
+        if result["warning"]:
+            st.markdown("#### ⚠️ Peringatan")
+            for w in result["warning"]:
+                st.warning(w)
+        
+        st.markdown("#### 💬 Saran Sanggahan")
+        suggestion = generate_appeal_suggestion(result)
+        st.info(suggestion)
+
+# ---------- FITUR SANGGAHAN ----------
+if st.session_state.get("show_appeal_form", False) or (col3.button("💬 Kirim Masukan / Sanggahan")):
+    st.session_state["show_appeal_form"] = True
+    st.markdown("### 💬 Kirim Sanggahan atau Masukan")
+    
+    with st.form("appeal_form"):
+        st.text_area("Jelaskan sanggahan Anda", height=150, 
+                     placeholder="Contoh: Klaim rawat inap ISPA selama 5 hari terlalu mahal...")
+        uploaded = st.file_uploader("Unggah dokumen pendukung (opsional)", type=["pdf", "jpg", "png"])
+        submit_appeal = st.form_submit_button("Kirim Sanggahan")
+    
+    if submit_appeal:
+        st.success("✅ Sanggahan Anda telah dikirim! Nomor tiket: FC-2025-11451")
+        st.session_state["show_appeal_form"] = False
