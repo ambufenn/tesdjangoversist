@@ -4,11 +4,11 @@ from model import load_model
 from handler import get_response
 
 # ---------- PAGE CONFIG ----------
-st.set_page_config(page_title="FairCare Pulse", layout="wide")
+st.set_page_config(page_title="JKNKLIN", layout="wide")
 
 # ---------- HEADER ----------
 st.markdown("""
-    <h2 style='color:#0A8F5B; text-align:center;'>FairCare Pulse</h2>
+    <h2 style='color:#0A8F5B; text-align:center;'>JKNKLIN</h2>
 """, unsafe_allow_html=True)
 
 st.markdown("""
