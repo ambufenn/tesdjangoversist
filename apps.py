@@ -144,8 +144,8 @@ if compare_clicked:
         st.info(suggestion)
 
 # ---------- FITUR SANGGAHAN ----------
-if st.session_state.get("show_appeal_form", False) or (col3.button("💬 Kirim Masukan / Sanggahan")):
-    if st.session_state.get("show_appeal_form", False) or appeal_clicked:
+if appeal_clicked or st.session_state.get("show_appeal_form", False):
+    st.session_state["show_appeal_form"] = True
     st.markdown("### 💬 Kirim Sanggahan atau Masukan")
     
     with st.form("appeal_form"):
