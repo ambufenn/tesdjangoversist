@@ -23,7 +23,7 @@ with col1:
 with col2:
     compare_clicked = st.button("📊 Bandingkan Tarif & Tindakan")
 with col3:
-    st.button("💬 Kirim Masukan / Sanggahan")
+    appeal_clicked = st.button("💬 Kirim Masukan / Sanggahan")
 with col4:
     chat_toggle = st.button("🤖 Chatbot Bantuan")
 
@@ -145,7 +145,7 @@ if compare_clicked:
 
 # ---------- FITUR SANGGAHAN ----------
 if st.session_state.get("show_appeal_form", False) or (col3.button("💬 Kirim Masukan / Sanggahan")):
-    st.session_state["show_appeal_form"] = True
+    if st.session_state.get("show_appeal_form", False) or appeal_clicked:
     st.markdown("### 💬 Kirim Sanggahan atau Masukan")
     
     with st.form("appeal_form"):
