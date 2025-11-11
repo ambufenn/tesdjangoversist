@@ -1,17 +1,7 @@
 # model.py
 import os
-from huggingface_hub import login
-from transformers import AutoTokenizer, AutoModelForCausalLM
+import google.generativeai as genai
 
 def load_model():
-    login(token=os.environ["HUGGINGFACE_TOKEN"])
-    model_name = "google/gemma-2-2b-it"  # <-- ini yang baru
-    
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(
-        model_name,
-        device_map="cpu",
-        torch_dtype="auto",
-        low_cpu_mem_usage=True
-    )
-    return tokenizer, model
+    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+    return genai.GenerativeModel("gemini-1.5-flash")
