@@ -73,7 +73,7 @@ if chat_toggle:
     def init_model():
         return load_model()
 
-    tokenizer, model = init_model()
+    model = init_model()  # ← HANYA MODEL, TIDAK ADA TOKENIZER
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -86,11 +86,10 @@ if chat_toggle:
         st.chat_message("user").markdown(prompt)
         st.session_state.messages.append({"role": "user", "content": prompt})
 
-        response = get_response(prompt, tokenizer, model)
+        response = get_response(prompt, model)  # ← HANYA KIRIM MODEL
         with st.chat_message("assistant"):
             st.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
-
 # ---------- FITUR PERBANDINGAN TARIF ----------
 if compare_clicked:
     st.markdown("### 📊 Bandingkan Tarif & Tindakan")
