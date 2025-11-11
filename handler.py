@@ -1,12 +1,10 @@
 # handler.py
 def get_response(user_input, tokenizer, model):
-    # Pastikan tokenizer punya pad_token
+    # Setel pad_token = eos_token (WAJIB untuk Gemma)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
     messages = [{"role": "user", "content": user_input}]
-    
-    # Gunakan apply_chat_template — ini kunci Llama-3!
     prompt = tokenizer.apply_chat_template(
         messages,
         tokenize=False,
