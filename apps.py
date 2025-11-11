@@ -3,6 +3,16 @@ import pandas as pd
 from model import load_model
 from handler import get_response
 
+# ---------- SESSION STATE INIT ----------
+if "show_chat" not in st.session_state:
+    st.session_state.show_chat = False
+if "compare_clicked" not in st.session_state:
+    st.session_state.compare_clicked = False
+if "appeal_clicked" not in st.session_state:
+    st.session_state.appeal_clicked = False
+if "chat_messages" not in st.session_state:
+    st.session_state.chat_messages = []
+
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="JKNKLIN", layout="wide")
 
@@ -16,23 +26,26 @@ st.markdown("""
     <p>No. Peserta: <b>000123456789</b></p>
 """, unsafe_allow_html=True)
 
-# Ganti bagian QUICK ACTIONS jadi:
+# ---------- QUICK ACTIONS ----------
 col1, col2, col3, col4 = st.columns(4)
 with col1:
     st.button("🗂️ Lihat Riwayat Layanan")
 with col2:
-    st.session_state["compare_clicked"] = st.button("📊 Bandingkan Tarif & Tindakan")
+    if st.button("📊 Bandingkan Tarif & Tindakan"):
+        st.session_state.compare_clicked = True
+        st.session_state.show_chat = False
+        st.session_state.appeal_clicked = False
 with col3:
-    st.session_state["appeal_clicked"] = st.button("💬 Kirim Masukan / Sanggahan")
+    if st.button("💬 Kirim Masukan / Sanggahan"):
+        st.session_state.appeal_clicked = True
+        st.session_state.show_chat = False
+        st.session_state.compare_clicked = False
 with col4:
-    # Toggle chatbot dengan session_state
     if st.button("🤖 Chatbot Bantuan"):
-        st.session_state["show_chat"] = not st.session_state.get("show_chat", False)
+        st.session_state.show_chat = True
+        st.session_state.compare_clicked = False
+        st.session_state.appeal_clicked = False
 
-# Tampilkan chatbot jika diaktifkan
-if st.session_state.get("show_chat", False):
-    st.markdown("### 🤖 Chatbot FairCare Assistant")
-    # ... (sisanya tetap sama)
 # ---------- FAIRNESS INDEX ----------
 st.markdown("""
 <div style="border:1px solid #D9F0E4; background-color:#F2FBF7; padding:10px; border-radius:8px;">
@@ -72,7 +85,7 @@ st.dataframe(
 st.markdown("<center><a href='#' style='color:#0A8F5B;'>Lihat Semua Riwayat</a></center>", unsafe_allow_html=True)
 
 # ---------- CHATBOT SECTION ----------
-if chat_toggle:
+if st.session_state.show_chat:
     st.markdown("### 🤖 Chatbot FairCare Assistant")
 
     @st.cache_resource
@@ -80,10 +93,6 @@ if chat_toggle:
         return load_model()
 
     model = init_model()
-
-    # Inisialisasi session state
-    if "chat_messages" not in st.session_state:
-        st.session_state.chat_messages = []
 
     # Tampilkan riwayat chat
     for msg in st.session_state.chat_messages:
@@ -108,8 +117,9 @@ if chat_toggle:
             st.session_state.chat_messages.append({"role": "assistant", "content": error_msg})
             with st.chat_message("assistant"):
                 st.error(error_msg)
+
 # ---------- FITUR PERBANDINGAN TARIF ----------
-if compare_clicked:
+if st.session_state.compare_clicked:
     st.markdown("### 📊 Bandingkan Tarif & Tindakan")
     
     with st.form("claim_analysis_form"):
@@ -161,7 +171,7 @@ if compare_clicked:
         st.info(suggestion)
 
 # ---------- FITUR SANGGAHAN ----------
-if appeal_clicked or st.session_state.get("show_appeal_form", False):
+if st.session_state.appeal_clicked or st.session_state.get("show_appeal_form", False):
     st.session_state["show_appeal_form"] = True
     st.markdown("### 💬 Kirim Sanggahan atau Masukan")
     
@@ -174,3 +184,4 @@ if appeal_clicked or st.session_state.get("show_appeal_form", False):
     if submit_appeal:
         st.success("✅ Sanggahan Anda telah dikirim! Nomor tiket: FC-2025-11451")
         st.session_state["show_appeal_form"] = False
+        st.session_state.appeal_clicked = False
