@@ -5,7 +5,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 
 def load_model():
     login(token=os.environ["HUGGINGFACE_TOKEN"])
-    model_name = "meta-llama/Llama-3.2-3B-Instruct"
+    model_name = "google/gemma-2-2b-it"  # <-- ini yang baru
     
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForCausalLM.from_pretrained(
