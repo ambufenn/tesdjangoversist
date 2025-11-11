@@ -16,17 +16,23 @@ st.markdown("""
     <p>No. Peserta: <b>000123456789</b></p>
 """, unsafe_allow_html=True)
 
-# ---------- QUICK ACTIONS ----------
+# Ganti bagian QUICK ACTIONS jadi:
 col1, col2, col3, col4 = st.columns(4)
 with col1:
     st.button("🗂️ Lihat Riwayat Layanan")
 with col2:
-    compare_clicked = st.button("📊 Bandingkan Tarif & Tindakan")
+    st.session_state["compare_clicked"] = st.button("📊 Bandingkan Tarif & Tindakan")
 with col3:
-    appeal_clicked = st.button("💬 Kirim Masukan / Sanggahan")
+    st.session_state["appeal_clicked"] = st.button("💬 Kirim Masukan / Sanggahan")
 with col4:
-    chat_toggle = st.button("🤖 Chatbot Bantuan")
+    # Toggle chatbot dengan session_state
+    if st.button("🤖 Chatbot Bantuan"):
+        st.session_state["show_chat"] = not st.session_state.get("show_chat", False)
 
+# Tampilkan chatbot jika diaktifkan
+if st.session_state.get("show_chat", False):
+    st.markdown("### 🤖 Chatbot FairCare Assistant")
+    # ... (sisanya tetap sama)
 # ---------- FAIRNESS INDEX ----------
 st.markdown("""
 <div style="border:1px solid #D9F0E4; background-color:#F2FBF7; padding:10px; border-radius:8px;">
