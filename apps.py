@@ -73,23 +73,35 @@ if chat_toggle:
     def init_model():
         return load_model()
 
-    model = init_model()  # ← HANYA MODEL, TIDAK ADA TOKENIZER
+    model = init_model()
 
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
+    # Inisialisasi session state
+    if "chat_messages" not in st.session_state:
+        st.session_state.chat_messages = []
 
-    for msg in st.session_state.messages:
+    # Tampilkan riwayat chat
+    for msg in st.session_state.chat_messages:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
+    # Tangani input baru
     if prompt := st.chat_input("Tanyakan sesuatu tentang layanan JKN..."):
-        st.chat_message("user").markdown(prompt)
-        st.session_state.messages.append({"role": "user", "content": prompt})
+        # Simpan pesan user
+        st.session_state.chat_messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
 
-        response = get_response(prompt, model)  # ← HANYA KIRIM MODEL
-        with st.chat_message("assistant"):
-            st.markdown(response)
-        st.session_state.messages.append({"role": "assistant", "content": response})
+        # Generate & simpan respons
+        try:
+            response = get_response(prompt, model)
+            st.session_state.chat_messages.append({"role": "assistant", "content": response})
+            with st.chat_message("assistant"):
+                st.markdown(response)
+        except Exception as e:
+            error_msg = "Maaf, sedang ada gangguan teknis. Coba lagi nanti."
+            st.session_state.chat_messages.append({"role": "assistant", "content": error_msg})
+            with st.chat_message("assistant"):
+                st.error(error_msg)
 # ---------- FITUR PERBANDINGAN TARIF ----------
 if compare_clicked:
     st.markdown("### 📊 Bandingkan Tarif & Tindakan")
